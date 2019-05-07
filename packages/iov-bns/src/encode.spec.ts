@@ -10,6 +10,7 @@ import {
   SendTransaction,
   SignatureBytes,
   TokenTicker,
+  WithCreator,
 } from "@iov/bcp";
 import { Ed25519, Ed25519Keypair, Sha512 } from "@iov/crypto";
 import { Encoding } from "@iov/encoding";
@@ -152,7 +153,7 @@ describe("Encode", () => {
     };
 
     it("can encode transaction without fees", () => {
-      const transaction: SendTransaction = {
+      const transaction: SendTransaction & WithCreator = {
         kind: "bcp/send",
         creator: defaultCreator,
         amount: defaultAmount,
@@ -169,7 +170,7 @@ describe("Encode", () => {
     });
 
     it("can encode transaction with fees", () => {
-      const transaction: SendTransaction = {
+      const transaction: SendTransaction & WithCreator = {
         kind: "bcp/send",
         creator: defaultCreator,
         amount: defaultAmount,
@@ -205,7 +206,7 @@ describe("Encode", () => {
     };
 
     it("works for SendTransaction", () => {
-      const transaction: SendTransaction = {
+      const transaction: SendTransaction & WithCreator = {
         kind: "bcp/send",
         creator: defaultCreator,
         amount: {
@@ -228,7 +229,7 @@ describe("Encode", () => {
     });
 
     it("works for AddAddressToUsernameTx", () => {
-      const addAddress: AddAddressToUsernameTx = {
+      const addAddress: AddAddressToUsernameTx & WithCreator = {
         kind: "bns/add_address_to_username",
         creator: defaultCreator,
         username: "alice",
@@ -244,7 +245,7 @@ describe("Encode", () => {
     });
 
     it("works for RegisterUsernameTx", () => {
-      const registerUsername: RegisterUsernameTx = {
+      const registerUsername: RegisterUsernameTx & WithCreator = {
         kind: "bns/register_username",
         creator: defaultCreator,
         username: "alice",
@@ -278,7 +279,7 @@ describe("Encode", () => {
     });
 
     it("works for RemoveAddressFromUsernameTx", () => {
-      const removeAddress: RemoveAddressFromUsernameTx = {
+      const removeAddress: RemoveAddressFromUsernameTx & WithCreator = {
         kind: "bns/remove_address_from_username",
         creator: defaultCreator,
         username: "alice",

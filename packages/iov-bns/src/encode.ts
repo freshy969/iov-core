@@ -11,6 +11,7 @@ import {
   SwapClaimTransaction,
   SwapOfferTransaction,
   UnsignedTransaction,
+  WithCreator,
 } from "@iov/bcp";
 import { Encoding, Int53 } from "@iov/encoding";
 
@@ -142,7 +143,7 @@ function buildAddAddressToUsernameTx(tx: AddAddressToUsernameTx): codecImpl.app.
   };
 }
 
-function buildSendTransaction(tx: SendTransaction): codecImpl.app.ITx {
+function buildSendTransaction(tx: SendTransaction & WithCreator): codecImpl.app.ITx {
   return {
     sendMsg: codecImpl.cash.SendMsg.create({
       src: decodeBnsAddress(identityToAddress(tx.creator)).data,
@@ -153,7 +154,7 @@ function buildSendTransaction(tx: SendTransaction): codecImpl.app.ITx {
   };
 }
 
-function buildSwapOfferTx(tx: SwapOfferTransaction): codecImpl.app.ITx {
+function buildSwapOfferTx(tx: SwapOfferTransaction & WithCreator): codecImpl.app.ITx {
   if (!isTimestampTimeout(tx.timeout)) {
     throw new Error("Got unsupported timeout type");
   }
@@ -187,7 +188,7 @@ function buildSwapAbortTransaction(tx: SwapAbortTransaction): codecImpl.app.ITx 
   };
 }
 
-function buildRegisterUsernameTx(tx: RegisterUsernameTx): codecImpl.app.ITx {
+function buildRegisterUsernameTx(tx: RegisterUsernameTx & WithCreator): codecImpl.app.ITx {
   const chainAddresses = tx.addresses.map(
     (pair): codecImpl.username.IChainAddress => {
       return {
