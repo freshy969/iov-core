@@ -26,11 +26,14 @@ import {
   asIntegerNumber,
   BnsUsernameNft,
   ChainAddressPair,
+  CreateMultisignatureTx,
   decodeFullSig,
   ensure,
   Keyed,
+  Participant,
   RegisterUsernameTx,
   RemoveAddressFromUsernameTx,
+  UpdateMultisignatureTx,
 } from "./types";
 import { addressPrefix, encodeBnsAddress, hashFromIdentifier, isHashIdentifier } from "./util";
 
@@ -152,6 +155,10 @@ export function parseMsg(base: UnsignedTransaction, tx: codecImpl.app.ITx): Unsi
     return parseRegisterUsernameTx(base, tx.issueUsernameNftMsg);
   } else if (tx.removeUsernameAddressMsg) {
     return parseRemoveAddressFromUsernameTx(base, tx.removeUsernameAddressMsg);
+  } else if (tx.createContractMsg) {
+    return parseCreateMultisignatureTx(base, tx.createContractMsg);
+  } else if (tx.updateContractMsg) {
+    return parseUpdateMultisignatureTx(base, tx.updateContractMsg);
   }
   throw new Error("unknown message type in transaction");
 }
@@ -277,5 +284,38 @@ function parseRemoveAddressFromUsernameTx(
       chainId: fromUtf8(ensure(msg.blockchainId, "blockchainId")) as ChainId,
       address: ensure(msg.address, "address") as Address,
     },
+  };
+}
+
+function parseCreateMultisignatureTx(
+  base: UnsignedTransaction,
+  msg: codecImpl.multisig.ICreateContractMsg,
+): CreateMultisignatureTx {
+  const participants = msg.participants
+    ? msg.participants.map(participant => participant as Participant)
+    : [];
+  return {
+    ...base,
+    kind: "bns/create_multisignature_contract",
+    participants: participants,
+    activationThreshold: msg.activationThreshold || 0,
+    adminThreshold: msg.adminThreshold || 0,
+  };
+}
+
+function parseUpdateMultisignatureTx(
+  base: UnsignedTransaction,
+  msg: codecImpl.multisig.IUpdateContractMsg,
+): UpdateMultisignatureTx {
+  const participants = msg.participants
+    ? msg.participants.map(participant => participant as Participant)
+    : [];
+  return {
+    ...base,
+    kind: "bns/update_multisignature_contract",
+    contractId: msg.contractId || Uint8Array.from([]),
+    participants: participants,
+    activationThreshold: msg.activationThreshold || 0,
+    adminThreshold: msg.adminThreshold || 0,
   };
 }
