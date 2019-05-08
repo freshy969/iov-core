@@ -17,10 +17,12 @@ import { Encoding, Int53 } from "@iov/encoding";
 import * as codecImpl from "./generated/codecimpl";
 import {
   AddAddressToUsernameTx,
+  CreateMultisignatureTx,
   isBnsTx,
   PrivateKeyBundle,
   RegisterUsernameTx,
   RemoveAddressFromUsernameTx,
+  UpdateMultisignatureTx,
 } from "./types";
 import { decodeBnsAddress, hashIdentifier, identityToAddress } from "./util";
 
@@ -123,10 +125,15 @@ export function buildMsg(tx: UnsignedTransaction): codecImpl.app.ITx {
     // BNS
     case "bns/add_address_to_username":
       return buildAddAddressToUsernameTx(tx);
+    case "bns/create_multisignature_contract":
+      return buildCreateMultisignatureTx(tx);
     case "bns/register_username":
       return buildRegisterUsernameTx(tx);
     case "bns/remove_address_from_username":
       return buildRemoveAddressFromUsernameTx(tx);
+    case "bns/update_multisignature_contract":
+      return buildUpdateMultisignatureTx(tx);
+
     default:
       throw new Error("Received transaction of unsupported kind.");
   }
@@ -138,6 +145,16 @@ function buildAddAddressToUsernameTx(tx: AddAddressToUsernameTx): codecImpl.app.
       usernameId: toUtf8(tx.username),
       blockchainId: toUtf8(tx.payload.chainId),
       address: tx.payload.address,
+    },
+  };
+}
+
+function buildCreateMultisignatureTx(tx: CreateMultisignatureTx): codecImpl.app.ITx {
+  return {
+    createContractMsg: {
+      participants: tx.participants.map(participant => participant as codecImpl.multisig.IParticipant),
+      activationThreshold: tx.activationThreshold,
+      adminThreshold: tx.adminThreshold,
     },
   };
 }
@@ -214,6 +231,17 @@ function buildRemoveAddressFromUsernameTx(tx: RemoveAddressFromUsernameTx): code
       usernameId: toUtf8(tx.username),
       blockchainId: toUtf8(tx.payload.chainId),
       address: tx.payload.address,
+    },
+  };
+}
+
+function buildUpdateMultisignatureTx(tx: UpdateMultisignatureTx): codecImpl.app.ITx {
+  return {
+    updateContractMsg: {
+      contractId: tx.contractId,
+      participants: tx.participants.map(participant => participant as codecImpl.multisig.IParticipant),
+      activationThreshold: tx.activationThreshold,
+      adminThreshold: tx.adminThreshold,
     },
   };
 }
