@@ -44,23 +44,13 @@ describe("Secp256k1", () => {
     expect(await Secp256k1.makeKeypair(fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364140"))).toBeTruthy();
 
     // too short and too long
-    await Secp256k1.makeKeypair(fromHex("e4ade2a5232a7c6f37e7b854a774e25e6047ee7c6d63e8304ae04fa190bc17"))
-      .then(() => fail("promise must be rejected"))
-      .catch(error => expect(error.message).toContain("not a valid secp256k1 private key"));
-    await Secp256k1.makeKeypair(fromHex("e4ade2a5232a7c6f37e7b854a774e25e6047ee7c6d63e8304ae04fa190bc1732aa"))
-      .then(() => fail("promise must be rejected"))
-      .catch(error => expect(error.message).toContain("not a valid secp256k1 private key"));
+    await expect(Secp256k1.makeKeypair(fromHex("e4ade2a5232a7c6f37e7b854a774e25e6047ee7c6d63e8304ae04fa190bc17"))).rejects.toThrow(/not a valid secp256k1 private key/i);
+    await expect(Secp256k1.makeKeypair(fromHex("e4ade2a5232a7c6f37e7b854a774e25e6047ee7c6d63e8304ae04fa190bc1732aa"))).rejects.toThrow(/not a valid secp256k1 private key/i);
     // value out of range (too small)
-    await Secp256k1.makeKeypair(fromHex("0000000000000000000000000000000000000000000000000000000000000000"))
-      .then(() => fail("promise must be rejected"))
-      .catch(error => expect(error.message).toContain("not a valid secp256k1 private key"));
+    await expect(Secp256k1.makeKeypair(fromHex("0000000000000000000000000000000000000000000000000000000000000000"))).rejects.toThrow(/not a valid secp256k1 private key/i);
     // value out of range (>= n)
-    await Secp256k1.makeKeypair(fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))
-      .then(() => fail("promise must be rejected"))
-      .catch(error => expect(error.message).toContain("not a valid secp256k1 private key"));
-    await Secp256k1.makeKeypair(fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"))
-      .then(() => fail("promise must be rejected"))
-      .catch(error => expect(error.message).toContain("not a valid secp256k1 private key"));
+    await expect(Secp256k1.makeKeypair(fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"))).rejects.toThrow(/not a valid secp256k1 private key/i);
+    await expect(Secp256k1.makeKeypair(fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"))).rejects.toThrow(/not a valid secp256k1 private key/i);
   });
 
   it("creates signatures", async () => {
@@ -87,18 +77,14 @@ describe("Secp256k1", () => {
     const privkey = fromHex("43a9c17ccbb0e767ea29ce1f10813afde5f1e0a7a504e89b4d2cc2b952b8e0b9");
     const keypair = await Secp256k1.makeKeypair(privkey);
     const messageHash = new Uint8Array([]);
-    await Secp256k1.createSignature(messageHash, keypair.privkey)
-      .then(() => fail("must not resolve"))
-      .catch(error => expect(error).toMatch(/message hash must not be empty/i));
+    await expect(Secp256k1.createSignature(messageHash, keypair.privkey)).rejects.toThrow(/message hash must not be empty/i);
   });
 
   it("throws for message hash longer than 32 bytes in signing", async () => {
     const privkey = fromHex("43a9c17ccbb0e767ea29ce1f10813afde5f1e0a7a504e89b4d2cc2b952b8e0b9");
     const keypair = await Secp256k1.makeKeypair(privkey);
     const messageHash = fromHex("11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff11");
-    await Secp256k1.createSignature(messageHash, keypair.privkey)
-      .then(() => fail("must not resolve"))
-      .catch(error => expect(error).toMatch(/message hash length must not exceed 32 bytes/i));
+    await expect(Secp256k1.createSignature(messageHash, keypair.privkey)).rejects.toThrow(/message hash length must not exceed 32 bytes/i);
   });
 
   it("verifies signatures", async () => {
@@ -140,18 +126,14 @@ describe("Secp256k1", () => {
     const dummySignature = Secp256k1Signature.fromDer(fromHex("304602210083de9be443bcf480892b8c8ca1d5ee65c79a315642c3f7b5305aff3065fda2780221009747932122b93cec42cad8ee4630a8f6cbe127578b8c495b4ab927275f657658"));
     const keypair = await Secp256k1.makeKeypair(fromHex("43a9c17ccbb0e767ea29ce1f10813afde5f1e0a7a504e89b4d2cc2b952b8e0b9"));
     const messageHash = new Uint8Array([]);
-    await Secp256k1.verifySignature(dummySignature, messageHash, keypair.pubkey)
-      .then(() => fail("must not resolve"))
-      .catch(error => expect(error).toMatch(/message hash must not be empty/i));
+    await expect(Secp256k1.verifySignature(dummySignature, messageHash, keypair.pubkey)).rejects.toThrow(/message hash must not be empty/i);
   });
 
   it("throws for message hash longer than 32 bytes in verification", async () => {
     const dummySignature = Secp256k1Signature.fromDer(fromHex("304602210083de9be443bcf480892b8c8ca1d5ee65c79a315642c3f7b5305aff3065fda2780221009747932122b93cec42cad8ee4630a8f6cbe127578b8c495b4ab927275f657658"));
     const keypair = await Secp256k1.makeKeypair(fromHex("43a9c17ccbb0e767ea29ce1f10813afde5f1e0a7a504e89b4d2cc2b952b8e0b9"));
     const messageHash = fromHex("11223344556677889900aabbccddeeff11223344556677889900aabbccddeeff11");
-    await Secp256k1.verifySignature(dummySignature, messageHash, keypair.privkey)
-      .then(() => fail("must not resolve"))
-      .catch(error => expect(error).toMatch(/message hash length must not exceed 32 bytes/i));
+    await expect(Secp256k1.verifySignature(dummySignature, messageHash, keypair.privkey)).rejects.toThrow(/message hash length must not exceed 32 bytes/i);
   });
 
   it("verifies unnormalized pyca/cryptography signatures", async () => {
