@@ -263,9 +263,7 @@ describe("Secp256k1", () => {
       const pubkey = (await Secp256k1.makeKeypair(row.privkey)).pubkey;
       const messageHash = new Sha256(row.message).digest();
       const isValid = await Secp256k1.verifySignature(Secp256k1Signature.fromDer(row.signature), messageHash, pubkey);
-      expect(isValid)
-        .withContext(`(index ${index})`)
-        .toEqual(true);
+      expect(isValid).toEqual(true);
     }
   });
 
@@ -333,20 +331,14 @@ describe("Secp256k1", () => {
 
       // verify calculated signature
       const ok1 = await Secp256k1.verifySignature(calculatedSignature, messageHash, keypair.pubkey);
-      expect(ok1)
-        .withContext(`(index ${index})`)
-        .toEqual(true);
+      expect(ok1).toEqual(true);
 
       // verify original signature
       const ok2 = await Secp256k1.verifySignature(Secp256k1Signature.fromDer(row.signature), messageHash, keypair.pubkey);
-      expect(ok2)
-        .withContext(`(index ${index})`)
-        .toEqual(true);
+      expect(ok2).toEqual(true);
 
       // compare signatures
-      expect(calculatedSignature.toDer())
-        .withContext(`(index ${index})`)
-        .toEqual(row.signature);
+      expect(calculatedSignature.toDer()).toEqual(row.signature);
     }
   });
 
