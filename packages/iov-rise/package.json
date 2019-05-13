@@ -21,7 +21,7 @@
     "move-types": "shx rm -r ./types/* && shx mv build/types/* ./types && shx rm ./types/*.spec.d.ts",
     "build": "shx rm -rf ./build && tsc && yarn move-types",
     "build-or-skip": "[ -n \"$SKIP_BUILD\" ] || yarn build",
-    "test-node": "node jasmine-testrunner.js",
+    "test-node": "jest --rootDir build/",
     "test-edge": "yarn pack-web && karma start --single-run --browsers Edge",
     "test-firefox": "yarn pack-web && karma start --single-run --browsers Firefox",
     "test-chrome": "yarn pack-web && karma start --single-run --browsers ChromeHeadless",
